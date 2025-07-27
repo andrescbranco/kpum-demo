@@ -1,23 +1,8 @@
 services:
   - type: web
-    name: kpum-demo-frontend
+    name: kpum-demo
     env: docker
-    dockerfilePath: ./frontend/Dockerfile.prod
-    dockerContext: ./frontend
-    envVars:
-      - key: REACT_APP_API_URL
-        value: https://kpum-demo-backend.onrender.com
-      - key: REACT_APP_WS_URL
-        value: wss://kpum-demo-backend.onrender.com/ws
-      - key: REACT_APP_ENV
-        value: production
-    healthCheckPath: /health
-
-  - type: web
-    name: kpum-demo-backend
-    env: docker
-    dockerfilePath: ./backend/Dockerfile.prod
-    dockerContext: ./backend
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -26,9 +11,13 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://kpum-demo-frontend.onrender.com
+        value: https://kpum-demo.onrender.com
       - key: ENVIRONMENT
         value: production
+      - key: REACT_APP_API_URL
+        value: https://kpum-demo.onrender.com
+      - key: REACT_APP_WS_URL
+        value: wss://kpum-demo.onrender.com/ws
     healthCheckPath: /api/status
 
 databases:
