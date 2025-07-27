@@ -26,9 +26,9 @@ RUN python3 -m venv venv && \
 WORKDIR /app
 COPY . .
 
-# Build frontend
+# Build frontend with environment variables
 WORKDIR /app/frontend
-RUN npm run build
+RUN chmod +x build.sh && ./build.sh
 
 # Create nginx configuration
 RUN echo 'server { \
