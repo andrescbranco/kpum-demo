@@ -16,9 +16,11 @@ COPY backend/requirements.txt ./backend/
 WORKDIR /app/frontend
 RUN npm ci --only=production
 
-# Install backend dependencies
+# Install backend dependencies in virtual environment
 WORKDIR /app/backend
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN python3 -m venv venv && \
+    . venv/bin/activate && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 WORKDIR /app
@@ -69,8 +71,8 @@ RUN echo 'server { \
 
 # Create startup script
 RUN echo '#!/bin/sh \n\
-# Start backend in background \n\
-cd /app/backend && python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 & \n\
+# Start backend in background with virtual environment \n\
+cd /app/backend && . venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 8000 & \n\
 # Start nginx in foreground \n\
 nginx -g "daemon off;"' > /app/start.sh && chmod +x /app/start.sh
 
