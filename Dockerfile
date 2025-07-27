@@ -69,12 +69,11 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/http.d/default.conf
 
-# Create startup script
-RUN echo '#!/bin/sh \n\
-# Start backend in background with virtual environment \n\
-cd /app/backend && . venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 8000 & \n\
-# Start nginx in foreground \n\
-nginx -g "daemon off;"' > /app/start.sh && chmod +x /app/start.sh
+# Create startup script with proper line breaks
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'cd /app/backend && . venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 8000 &' >> /app/start.sh && \
+    echo 'nginx -g "daemon off;"' >> /app/start.sh && \
+    chmod +x /app/start.sh
 
 # Expose port
 EXPOSE 80
