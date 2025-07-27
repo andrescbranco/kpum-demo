@@ -8,6 +8,7 @@ import logging
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 import random
+import time
 
 from models.database import engine, Base
 from models.patient import Patient, PatientCreate, PatientResponse
@@ -17,7 +18,7 @@ from models.dispatch import Dispatch, DispatchCreate, DispatchResponse
 from services.simulation_engine import SimulationEngine
 from services.classification_engine import ClassificationEngine
 from services.websocket_manager import WebSocketManager
-from database import get_db, SessionLocal
+from database import get_db, SessionLocal, test_connection
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -33,8 +34,29 @@ async def lifespan(app: FastAPI):
     # Startup
     global simulation_engine, classification_engine, websocket_manager
     
+    # Wait for database to be ready
+    logger.info("Waiting for database connection...")
+    max_retries = 30
+    retry_count = 0
+    
+    while retry_count < max_retries:
+        if test_connection():
+            break
+        retry_count += 1
+        logger.info(f"Database connection attempt {retry_count}/{max_retries} failed, retrying in 2 seconds...")
+        time.sleep(2)
+    
+    if retry_count >= max_retries:
+        logger.error("Failed to connect to database after maximum retries")
+        raise Exception("Database connection failed")
+    
     # Create database tables
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Failed to create database tables: {e}")
+        raise
     
     # Initialize services
     classification_engine = ClassificationEngine()
@@ -62,10 +84,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware
+# CORS middleware - updated to include the actual Render URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000", 
+        "http://localhost:3001", 
+        "http://127.0.0.1:3001",
+        "https://kpum-demo-1.onrender.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

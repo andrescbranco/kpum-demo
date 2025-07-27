@@ -11,13 +11,15 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://kpum-demo.onrender.com
+        value: https://kpum-demo-1.onrender.com
       - key: ENVIRONMENT
         value: production
       - key: REACT_APP_API_URL
-        value: https://kpum-demo.onrender.com
+        value: https://kpum-demo-1.onrender.com
       - key: REACT_APP_WS_URL
-        value: wss://kpum-demo.onrender.com/ws
+        value: wss://kpum-demo-1.onrender.com/ws
+      - key: REACT_APP_ENV
+        value: production
     healthCheckPath: /api/status
 
 databases:
