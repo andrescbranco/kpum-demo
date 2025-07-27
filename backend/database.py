@@ -13,6 +13,12 @@ logger = logging.getLogger(__name__)
 # Database URL from environment variable or default
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost/kpum_demo")
 
+# Debug: Print all environment variables
+logger.info("Environment variables:")
+for key, value in os.environ.items():
+    if "DATABASE" in key or "DB" in key:
+        logger.info(f"{key}: {value}")
+
 logger.info(f"Using DATABASE_URL: {DATABASE_URL}")
 
 # Create engine with connection retry logic
